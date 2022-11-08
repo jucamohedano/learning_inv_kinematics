@@ -130,8 +130,8 @@ if __name__ == '__main__':
     JOINT_3 = np.array([0, np.pi])  # around y-axis
     JOINT_4 = np.array([0, 2*np.pi]) # around z-axis
 
-    joint14step = np.linspace(start=JOINT_1[0], stop=JOINT_1[1], num=5)
-    joint23step = np.linspace(start=JOINT_2[0], stop=JOINT_2[1], num=5)
+    joint14step = np.linspace(start=JOINT_1[0], stop=JOINT_1[1], num=20)
+    joint23step = np.linspace(start=JOINT_2[0], stop=JOINT_2[1], num=20)
     
     joints_values = []
     with open("test.npy", "wb") as f:
@@ -146,4 +146,4 @@ if __name__ == '__main__':
                         joints_and_ee = np.vstack((robot.joints, np.expand_dims(robot.get_ee_pose(), axis=0)))
                         joints_values.append(joints_and_ee)
         
-        np.save(f, joints_values)
+                np.save(f, joints_values)
