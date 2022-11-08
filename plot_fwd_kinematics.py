@@ -89,8 +89,12 @@ class RobotArm3D:
                 joint_i - joint index to rotate
                 rot - rotation matrix to apply
         """
-        rotated_point = np.dot(rot, self.joints[joint_i][:3,-1])
-        self.joints[joint_i][:3,-1] = rotated_point
+        rotated_point = np.dot(rot, self.joints[joint_i][:3,-1]).reshape(3,1)
+        self.joints[joint_i] = np.vstack(
+                                    (
+                                        np.hstack((rot, rotated_point)), 
+                                        np.array([0,0,0,1], dtype=np.float16)
+                                    ))
 
         # rotate subsequent joints if it applies
         for joint_idx in range(joint_i+1, self.num_joints):
@@ -101,7 +105,6 @@ class RobotArm3D:
         # plot robot arm with matplotlib
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
-        
         
         x = []
         y = []
@@ -114,6 +117,12 @@ class RobotArm3D:
         ax.plot(x,y,z, marker=".", markeredgecolor="red")
         plt.show()
 
+    # def log_joints_angles(self, file):
+    #     """get all the joints angles Rx,Ry,Rz w.r.t.
+    #        and log the result for training
+    #     """
+    #     file.write()
+
 if __name__ == '__main__':
     robot = RobotArm3D()
     robot.add_revolute_link(np.array([0,0,1]).reshape(3,1), rotation_matrix(0,0,0))
@@ -121,3 +130,4 @@ if __name__ == '__main__':
     robot.add_revolute_link(np.array([0,0,1]).reshape(3,1), rotation_matrix(0,0,0))
 
     
+
