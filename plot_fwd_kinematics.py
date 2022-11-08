@@ -1,6 +1,7 @@
 # %matplotlib inline
 import matplotlib.pyplot as plt
 import numpy as np
+import pickle as pkl
 
 # FORWARD KINEMATICS
 # 1. Get the Transformation matrices from frame {1} w.r.t. frame {0}, frame {2} w.r.t. frame {1}, and so on.
@@ -117,11 +118,6 @@ class RobotArm3D:
         ax.plot(x,y,z, marker=".", markeredgecolor="red")
         plt.show()
 
-    # def log_joints_angles(self, file):
-    #     """get all the joints angles Rx,Ry,Rz w.r.t.
-    #        and log the result for training
-    #     """
-    #     file.write()
 
 if __name__ == '__main__':
     robot = RobotArm3D()
@@ -129,5 +125,25 @@ if __name__ == '__main__':
     robot.add_revolute_link(np.array([0,0,1]).reshape(3,1), rotation_matrix(0,0,0))
     robot.add_revolute_link(np.array([0,0,1]).reshape(3,1), rotation_matrix(0,0,0))
 
-    
+    JOINT_1 = np.array([0, 2*np.pi]) # around z-axis
+    JOINT_2 = np.array([0, np.pi]) # around x-axis
+    JOINT_3 = np.array([0, np.pi])  # around y-axis
+    JOINT_4 = np.array([0, 2*np.pi]) # around z-axis
 
+    joint14step = np.linspace(start=JOINT_1[0], stop=JOINT_1[1], num=5)
+    joint23step = np.linspace(start=JOINT_2[0], stop=JOINT_2[1], num=5)
+    
+    joints_values = []
+    with open("test.npy", "wb") as f:
+        for step_i in joint14step:
+            robot.rotate_joint(0, rotation_matrix(0,0,step_i))
+            for step_j in joint23step:
+                robot.rotate_joint(1, rotation_matrix(step_j,0,0))
+                for step_k in joint23step:
+                    robot.rotate_joint(2, rotation_matrix(0,step_k,0))
+                    for step_r in joint14step:
+                        robot.rotate_joint(3, rotation_matrix(0,0,step_r))
+                        joints_and_ee = np.vstack((robot.joints, np.expand_dims(robot.get_ee_pose(), axis=0)))
+                        joints_values.append(joints_and_ee)
+        
+        np.save(f, joints_values)
