@@ -101,11 +101,8 @@ class RobotArm3D:
 if __name__ == '__main__':
     robot = RobotArm3D()
     robot.add_revolute_link(np.array([0,0,1]).reshape(3,1), rotation_matrix(0,0,0))
-    robot.add_revolute_link(np.array([1,0,0]).reshape(3,1), rotation_matrix(0,0,0))
-    robot.add_revolute_link(np.array([1,0,0]).reshape(3,1), rotation_matrix(0,0,0))
-    robot.add_revolute_link(np.array([1,0,0]).reshape(3,1), rotation_matrix(0,0,0))
-    robot.add_revolute_link(np.array([0,0,1]).reshape(3,1), rotation_matrix(np.pi/2,0,0))
-
+    robot.add_revolute_link(np.array([0,0,1]).reshape(3,1), rotation_matrix(0,0,0))
+    robot.add_revolute_link(np.array([0,0,1]).reshape(3,1), rotation_matrix(0,0,0))
 
     # plot robot arm with matplotlib
     fig = plt.figure()
@@ -120,5 +117,5 @@ if __name__ == '__main__':
         x.append(m[0][-1])
         y.append(m[1][-1])
         z.append(m[2][-1])
-    ax.plot(x,y,z)
+    ax.plot(x,y,z, marker=".", markeredgecolor="red")
     plt.show()
