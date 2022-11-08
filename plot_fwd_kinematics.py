@@ -97,6 +97,22 @@ class RobotArm3D:
             rotated_point = np.dot(rot, self.joints[joint_idx][:3,-1])
             self.joints[joint_idx][:3,-1] = rotated_point
 
+    def plot_robot(self):
+        # plot robot arm with matplotlib
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+        
+        
+        x = []
+        y = []
+        z = []
+        for joint in range(robot.num_joints):
+            m = robot.get_tf_in_base_frame(joint)
+            x.append(m[0][-1])
+            y.append(m[1][-1])
+            z.append(m[2][-1])
+        ax.plot(x,y,z, marker=".", markeredgecolor="red")
+        plt.show()
 
 if __name__ == '__main__':
     robot = RobotArm3D()
@@ -104,18 +120,4 @@ if __name__ == '__main__':
     robot.add_revolute_link(np.array([0,0,1]).reshape(3,1), rotation_matrix(0,0,0))
     robot.add_revolute_link(np.array([0,0,1]).reshape(3,1), rotation_matrix(0,0,0))
 
-    # plot robot arm with matplotlib
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
-
     
-    x = []
-    y = []
-    z = []
-    for joint in range(robot.num_joints):
-        m = robot.get_tf_in_base_frame(joint)
-        x.append(m[0][-1])
-        y.append(m[1][-1])
-        z.append(m[2][-1])
-    ax.plot(x,y,z, marker=".", markeredgecolor="red")
-    plt.show()
