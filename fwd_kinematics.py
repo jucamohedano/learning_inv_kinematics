@@ -1,7 +1,9 @@
 # %matplotlib inline
 import matplotlib.pyplot as plt
 import numpy as np
-import pickle as pkl
+from tensorflow_graphics.geometry.transformation import quaternion as quat
+import tensorflow as tf
+from tqdm import tqdm
 
 # FORWARD KINEMATICS
 # 1. Get the Transformation matrices from frame {1} w.r.t. frame {0}, frame {2} w.r.t. frame {1}, and so on.
@@ -134,16 +136,25 @@ if __name__ == '__main__':
     joint23step = np.linspace(start=JOINT_2[0], stop=JOINT_2[1], num=20)
     
     joints_values = []
-    with open("test.npy", "wb") as f:
-        for step_i in joint14step:
-            robot.rotate_joint(0, rotation_matrix(0,0,step_i))
-            for step_j in joint23step:
-                robot.rotate_joint(1, rotation_matrix(step_j,0,0))
-                for step_k in joint23step:
-                    robot.rotate_joint(2, rotation_matrix(0,step_k,0))
-                    for step_r in joint14step:
-                        robot.rotate_joint(3, rotation_matrix(0,0,step_r))
-                        joints_and_ee = np.vstack((robot.joints, np.expand_dims(robot.get_ee_pose(), axis=0)))
-                        joints_values.append(joints_and_ee)
+    ee_poses = []
+    
+    for step_i in tqdm(joint14step):
+        robot.rotate_joint(0, rotation_matrix(0,0,step_i))
+        for step_j in tqdm(joint23step):
+            robot.rotate_joint(1, rotation_matrix(step_j,0,0))
+            for step_k in tqdm(joint23step):
+                robot.rotate_joint(2, rotation_matrix(0,step_k,0))
+                for step_r in tqdm(joint14step):
+                    robot.rotate_joint(3, rotation_matrix(0,0,step_r))
+                    ee_pose = robot.get_ee_pose()
+                    ee_pose_quat = quat.from_rotation_matrix(ee_pose[:3,:3]).numpy()
+                    ee_pose = np.hstack((ee_pose[:3,-1], ee_pose_quat))
+                    ee_poses.append(ee_pose)
+                    joints_quat = tf.map_fn(fn=quat.from_rotation_matrix, elems=robot.joints[:,:3,:3]).numpy()
+                    # joints_and_ee = np.vstack((robot.joints, np.expand_dims(robot.get_ee_pose(), axis=0)))
+                    joints_values.append(joints_quat)
         
-                np.save(f, joints_values)
+    with open("ee_quat_poses.npy", "wb") as file:
+        np.save(file, ee_poses)
+    with open("joints_quat_values.npy", "wb") as file:
+        np.save(file, joints_values)
